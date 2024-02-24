@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.Vector;
 import javax.swing.JButton;
@@ -17,6 +18,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 
+import utils.VerProper;
+
 public class ServerWindow extends JFrame implements ActionListener{
 	JButton start,stop,senior;
 	JList Useronlise;
@@ -24,9 +27,10 @@ public class ServerWindow extends JFrame implements ActionListener{
 	JTextField jtfport,mcsrk;
 	ServerSocket serversocket ;
 	JLabel dkh,mc;
-	static ByteBuffer byterbuffer = ByteBuffer.allocate(1024);
-	
+	static ByteBuffer byterbuffer = ByteBuffer.allocate(1024);	
 	public DataChat datachat= new DataChat();
+	public VerProper verproper;
+	public ExcAl excal;
 	public ServerWindow(String title) {
 		super(title);
 		ServerJF(title);
@@ -40,6 +44,7 @@ public class ServerWindow extends JFrame implements ActionListener{
 		start = new JButton("启动");stop = new JButton("停止");senior = new JButton("高级");
 		JPanel jp = new JPanel();
 		Useronlise = new JList();
+		verproper = new VerProper();
 		JScrollPane jsp = new JScrollPane(Useronlise);
 		JSplitPane jspx = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,jsp,jp);
 		//窗口设定
@@ -59,7 +64,7 @@ public class ServerWindow extends JFrame implements ActionListener{
 		this.add(jspx);
 		jspx.setDividerLocation(200);
 		jspx.setDividerSize(4);
-	this.setVisible(true);	
+		this.setVisible(true);	
 		start.addActionListener(this);
 
 		stop.addActionListener(this);
@@ -71,8 +76,9 @@ public void senjorcj() {
 public void serve() {
 	 int pork =Integer.parseInt(jtfport.getText().trim());
 		try {
+			verproper.initilise();
 			serversocket = new ServerSocket(pork);
-			ExcAl excal = new ExcAl(this);
+			excal = new ExcAl(this);
 			excal.start();
 		} catch (IOException e1) {
 			e1.printStackTrace();
@@ -80,7 +86,6 @@ public void serve() {
 }
 
 public void refreshlist() {
-	System.out.println("有在刷新");
 	Vector v = new Vector();
 	int size = this.onlineList.size();
 	for (int i = 0;i<size;i++) {
@@ -102,7 +107,12 @@ public void actionPerformed(ActionEvent arg0) {
 		mcsrk.setEnabled(false);
 		System.out.println("服务器启动成功");
 	}else if(arg0.getSource() == stop) {
+		for (Object object : onlineList) {
+			Excagent exa = (Excagent) object;
+			exa.stopExcagent();
+		}
 		try {
+			excal.stopServer();
 			serversocket.close();
 		} catch (IOException e1) {
 			e1.printStackTrace();

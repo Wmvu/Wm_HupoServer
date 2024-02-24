@@ -18,18 +18,19 @@ import com.gowild.dao.SocketMessage;
 import utils.Encdoutils;
 import utils.MessageDecodeUtil;
 
-class Excagent extends Thread {
+public class Excagent extends Thread {
 	ServerWindow hoserver;
 	Socket socket;
 	DataInputStream in ;
 	DataOutputStream ou;
-	boolean flag = true;
+	public boolean flag = true;
 	public Excagent (ServerWindow hoserver2,Socket socket) { 
 	  try {
 		this.hoserver= hoserver2;
 		this.socket = socket;
 		ou = new DataOutputStream(socket.getOutputStream());
 		in = new DataInputStream(socket.getInputStream());
+		hoserver.verproper.ttime(this);
 	} catch (IOException e) {
 		e.printStackTrace();
 	}
@@ -43,33 +44,16 @@ class Excagent extends Thread {
 				byte[] msgdata = Arrays.copyOf(msg, a);
 				byte[] cleardata = MessageDecodeUtil.decode(msgdata, MessageDecodeUtil.getDecodeKey());
 				this.hoserver.datachat.addElement(Encdoutils.bytesToHexString(cleardata));
-				
 				SocketMessage smg =	SocketMessage.obtain().parseData(cleardata);
-				String path = System.getProperty("user.dir");
-//				System.out.println(path);
-				Properties prt = new Properties();
-				BufferedReader inStream = new BufferedReader(new FileReader(path+"\\response.ini"));
-				prt.load(inStream);
-				Set<Object> list = prt.keySet();
-				List<Object>arlist = new ArrayList<Object>(list);
-//				System.out.println(arlist.toString());
-				System.out.println(prt.getProperty(String.valueOf(smg.getCode())));
-				System.out.println(smg.getCode());
-				System.out.println(arlist.get(0));
-				if(arlist.contains(String.valueOf(smg.getCode()))) {
-//					System.out.println(String.valueOf(smg.getCode()));
-					System.out.println(prt.getProperty(String.valueOf(smg.getCode())));
-					byte bytes[] = Encdoutils.hexStringToBytes(prt.getProperty(String.valueOf(smg.getCode())));
-					byte realdata[] = MessageDecodeUtil.encode(bytes, MessageDecodeUtil.getEncodeKey());
-					this.ou.write(realdata);
-					this.ou.flush();
+				if(hoserver.verproper.getcodelist().contains(Integer.valueOf(smg.getCode()))) {
+					this.sendMessageData(hoserver.verproper.getPerptitem(Integer.valueOf(smg.getCode())));
 					}
 			} catch (Exception e) {
 				try {
+					flag = false;
 					ou.close();
 					in.close();
 					socket.close();
-					flag = false;
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
@@ -83,12 +67,29 @@ class Excagent extends Thread {
 		tempv.remove(this);
 		hoserver.refreshlist();
 	}
-	public void start_xyx() {
+	public void sendMessageData(String text) {
+		byte bytes[] = Encdoutils.hexStringToBytes(text);
+		byte realdata[] = MessageDecodeUtil.encode(bytes, MessageDecodeUtil.getEncodeKey());
+		try {
+			this.ou.write(realdata);
+			this.ou.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 	}
-	public void zf_ltgc(String msg) {
-		Vector tempv = hoserver.onlineList;
-		int size = tempv.size();
-		msg = this.getName()+":"+msg;
-		hoserver.datachat.addElement(msg);
+
+	public void stopExcagent() {
+		flag = false;
+		delete_client();
+		try {
+			this.socket.shutdownOutput();
+			this.socket.shutdownInput();
+			if(socket != null)socket.close();
+			socket = null;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 	}
 }

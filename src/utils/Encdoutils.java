@@ -16,15 +16,10 @@ public class Encdoutils {
         }
         return builder.toString();
     }
-//    public static String doenc(String e) {
-//    	String a = e.replaceAll(" ", "");
-//    	String pas="";
-//		byte c[] = MessageDecodeUtil.decode(hexStringToBytes(a),MessageDecodeUtil.getDecodeKey());
-//		for (byte b : c) {
-//			pas += String.format("%02X", b);
-//		}
-//		return pas;
-//    }
+    public static String doenc(String e) {
+    	String a = e.replaceAll(" ", "");
+		return a;
+    }
 //    public static byte[] doenc2b(String e) {
 //    	String a = e.replaceAll(" ", "");
 //		byte c[] = MessageDecodeUtil.decode(hexStringToBytes(a),MessageDecodeUtil.getDecodeKey());

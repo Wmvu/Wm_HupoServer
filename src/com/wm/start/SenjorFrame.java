@@ -86,18 +86,10 @@ public SenjorFrame(int x,int y,ServerWindow aoser) {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				try {
 				Vector v = aoser.onlineList;
-				aoser.datachat.addElement(cd.getText());
+				aoser.datachat.addElement(Encdoutils.doenc(cd.getText()));
 					Excagent satemp = (Excagent) v.get(0);
-//						satemp.ou.writeUTF(gmsya);
-					byte bytes[] =Encdoutils.hexStringToBytes(cd.getText());
-					satemp.ou.write(MessageDecodeUtil.encode(bytes, MessageDecodeUtil.getEncodeKey()));
-					satemp.ou.flush();
-						
-				} catch (IOException e1) {
-						System.out.println("Senjor出现异常");
-					}
+					satemp.sendMessageData(Encdoutils.doenc(cd.getText()));
 				cd.setText("");
 			}
 		});
