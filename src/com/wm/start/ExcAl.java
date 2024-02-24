@@ -1,8 +1,6 @@
 package com.wm.start;
 
-import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -42,7 +40,7 @@ public class ExcAl extends Thread {
 		}
 		
 	}
-		@SuppressWarnings("resource")
+//		@SuppressWarnings("resource")
 		public void stopServer() {
 			flag =false;
 		}

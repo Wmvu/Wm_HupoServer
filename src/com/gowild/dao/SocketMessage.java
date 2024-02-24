@@ -13,10 +13,10 @@ interface TimeoutListener {
     void timeout(short s);
 }
 public final class SocketMessage {
-    private static final int FLAG_IN_USE = 1;
+//    private static final int FLAG_IN_USE = 1;
     public static final short HEADER = 32766;
     public static final short HEAD_SIZE = 7;
-    private static final int MAX_POOL_SIZE = 20;
+//    private static final int MAX_POOL_SIZE = 20;
     public static final byte TYPE = 1;
     private static SocketMessage sPool;
     public boolean bSendSync;

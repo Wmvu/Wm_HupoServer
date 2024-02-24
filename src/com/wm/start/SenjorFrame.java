@@ -7,7 +7,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
 import java.util.Vector;
 
 import javax.swing.JButton;
@@ -22,19 +21,19 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import utils.Encdoutils;
-import utils.MessageDecodeUtil;
 
 public class SenjorFrame extends JFrame{
-/**
-	 * 
+	/**
+	 * this is second window also send and receive user data of place
+	 * 此窗口接收调试连接对象
 	 */
-private static final long serialVersionUID = 1L;
+private static final long serialVersionUID = -7439086377374228045L;
 ServerWindow aoser;
 JButton spend;
 JTextField cd;
 JPanel jp;
 
-JList table ;
+JList<String> table ;
 JPanel panel;
 JScrollPane scrollPane;
 private  JPopupMenu jpmenu;
@@ -62,7 +61,7 @@ public SenjorFrame(int x,int y,ServerWindow aoser) {
 		jp = new JPanel(null);
 		spend = new JButton("send");
 		cd = new JTextField();
-		table = new JList(this.aoser.datachat);
+		table = new JList<String>(this.aoser.datachat);
 		jpmenu = new JPopupMenu();
 		menuitem = new JMenuItem("删除");
 		new Robot();
@@ -86,7 +85,7 @@ public SenjorFrame(int x,int y,ServerWindow aoser) {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Vector v = aoser.onlineList;
+				Vector<Excagent> v = aoser.onlineList;
 				aoser.datachat.addElement(Encdoutils.doenc(cd.getText()));
 					Excagent satemp = (Excagent) v.get(0);
 					satemp.sendMessageData(Encdoutils.doenc(cd.getText()));
