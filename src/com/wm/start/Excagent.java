@@ -12,6 +12,7 @@ import com.gowild.dao.UserKey;
 
 import utils.Encdoutils;
 import utils.MessageDecodeUtil;
+import utils.Proxy;
 
 public class Excagent extends Thread {
 	ServerWindow hoserver;
@@ -20,6 +21,7 @@ public class Excagent extends Thread {
 	DataOutputStream ou;
 	public boolean flag = true;
 	private UserKey userkey;
+	Proxy px;
 	public Excagent (ServerWindow hoserver2,Socket socket) { 
 	  try {
 		this.hoserver= hoserver2;
@@ -33,6 +35,12 @@ public class Excagent extends Thread {
 	}
 	 
 	}
+	public Proxy getPx() {
+		return px;
+	}
+	public void setPx(Proxy px) {
+		this.px = px;
+	}
 	public void run () {
 		while (flag) {
 			try {
@@ -40,6 +48,7 @@ public class Excagent extends Thread {
 				int a =in.read(msg);
 				byte[] msgdata = Arrays.copyOf(msg, a);
 				byte[] cleardata = receive(msgdata);
+				if(px != null)px.send(cleardata);
 				this.hoserver.datachat.addElement(Encdoutils.bytesToHexString(cleardata));
 				SocketMessage smg =	SocketMessage.obtain().parseData(cleardata);
 				if(hoserver.verproper.getcodelist().contains(Integer.valueOf(smg.getCode()))) {
@@ -71,6 +80,9 @@ public class Excagent extends Thread {
 	}
 	public void sendMessageData(String text) {
 		byte bytes[] = Encdoutils.hexStringToBytes(text);
+		this.sendMessageData(bytes);
+	}
+	public void sendMessageData(byte[] bytes) {
 		byte realdata[] = MessageDecodeUtil.encode(bytes, this.userkey.getEnkey());
 		try {
 			this.ou.write(realdata);
@@ -78,9 +90,7 @@ public class Excagent extends Thread {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
 	}
-
 	public void stopExcagent() {
 		flag = false;
 		delete_client();
@@ -94,4 +104,5 @@ public class Excagent extends Thread {
 		}
 		
 	}
+
 }

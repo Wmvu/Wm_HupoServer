@@ -12,7 +12,23 @@ import com.wm.start.Excagent;
 public class VerProper {
 	HashMap<Integer,String>codelist = null;
 	HashMap<String,Integer> nodelist = null;
+	String po ="";
+	int pt;
+	boolean isproxy;
+	public boolean isIsproxy() {
+		return this.isproxy;
+	}
+	public void setIsproxy(boolean isproxy) {
+		this.isproxy = isproxy;
+	}
+	public String getPo() {
+		return po;
+	}
+	public int getPt() {
+		return pt;
+	}
 	public void initilise() {
+		setIsproxy(false);
 		String path = System.getProperty("user.dir");
 		Properties prt = new Properties();
 		BufferedReader inStream;
@@ -32,6 +48,12 @@ public class VerProper {
 				String num = lin.substring(1, lin.length());
 				Integer time = Integer.valueOf(num);
 				nodelist.put(Encdoutils.doenc(prt.getProperty(lin)),time);
+			}else if(lin.startsWith("SP")) {
+				String num = lin.substring(2, lin.length());
+				Integer port = Integer.valueOf(Encdoutils.doenc(prt.getProperty(lin)));
+				pt = port;
+				po = num;
+				setIsproxy(true);
 			}else {
 				codelist.put(Integer.valueOf(lin),Encdoutils.doenc(prt.getProperty(String.valueOf(lin))));
 			}

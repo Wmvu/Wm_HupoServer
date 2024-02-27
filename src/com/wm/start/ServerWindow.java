@@ -2,25 +2,36 @@ package com.wm.start;
 
 
 
+import java.awt.AWTException;
+import java.awt.Image;
+import java.awt.MenuItem;
+import java.awt.PopupMenu;
+import java.awt.SystemTray;
+import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.nio.ByteBuffer;
 import java.util.Vector;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 
+import utils.Proxy;
 import utils.VerProper;
 
 public class ServerWindow extends JFrame implements ActionListener{
@@ -30,6 +41,7 @@ public class ServerWindow extends JFrame implements ActionListener{
 	 */
 	private static final long serialVersionUID = 1L;
 	JButton start,stop,senior;
+	MenuItem quit;
 	JList<String> Useronlise;
 	Vector<Excagent> onlineList = new Vector<Excagent>();
 	JTextField jtfport,mcsrk;
@@ -40,7 +52,8 @@ public class ServerWindow extends JFrame implements ActionListener{
 	public VerProper verproper;
 	public ExcAl excal;
 	public JPopupMenu jpmenu;
-	public JMenuItem menuitem;
+	public JMenuItem menuitem,pmt;
+	private Proxy proxy;
 	public ServerWindow(String title) {
 		super(title);
 		ServerJF(title);
@@ -59,10 +72,11 @@ public class ServerWindow extends JFrame implements ActionListener{
 		JSplitPane jspx = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,jsp,jp);
 		jpmenu = new JPopupMenu();
 		menuitem = new JMenuItem("踢出");
+		pmt = new JMenuItem("使用代理服务器转发");
 		//窗口设定
 		this.setSize(410, 300);
 		this.setTitle(title);
-		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		this.setDefaultCloseOperation(HIDE_ON_CLOSE);
 		setLocationRelativeTo(null);
 		jp.setLayout(null);
 		this.datachat.addElement("---=#以下为连接数据信息：#=---");
@@ -73,9 +87,12 @@ public class ServerWindow extends JFrame implements ActionListener{
 		jp.add(mcsrk);mcsrk.setBounds(110, 10, 70, 23);
 		jp.add(dkh);dkh.setBounds(40, 50, 50, 25);
 		jp.add(mc);mc.setBounds(20, 10, 73, 25);
-		jpmenu.add(menuitem);
+		jpmenu.add(menuitem);jpmenu.add(pmt);
 		Useronlise.add(jpmenu);
 		this.add(jspx);
+		this.newTray();
+		ifpt();
+		pmt.setVisible(false);
 		jspx.setDividerLocation(200);
 		jspx.setDividerSize(4);
 		this.setVisible(true);	
@@ -94,10 +111,51 @@ public class ServerWindow extends JFrame implements ActionListener{
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				kick(Useronlise.getSelectedIndex());
+				if(Useronlise.getSelectedIndex()!=-1)kick(Useronlise.getSelectedIndex());
 				
 			}
 		});
+		pmt.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if(Useronlise.getSelectedIndex()!=-1) {
+					Excagent ea = onlineList.get(Useronlise.getSelectedIndex());
+					ea.setName("* "+ea.getName() +"  *");
+					refreshlist();
+					try {
+						proxy.reset(ea);
+					} catch (IOException e) {
+						System.out.println("pmt.addActionListener(new ActionListener()");
+//						e.printStackTrace();
+					}
+				}
+				
+			}
+		});
+		this.addWindowListener(new WindowAdapter() {
+
+			@Override
+			public void windowClosing(WindowEvent e) {
+				super.windowClosing(e);
+				String [] temp = {"最小化","退出"};
+				int i =JOptionPane.showOptionDialog(ServerWindow.this,"你确定要关闭服务器吗:","Option",
+	                    JOptionPane.DEFAULT_OPTION,JOptionPane.INFORMATION_MESSAGE,null,temp,"中号");
+				if(i == 0)return;else System.exit(0);
+			}
+			
+		});
+	}
+private void ifpt() {
+	try {
+//		if(verproper.isIsproxy()) {
+		proxy = new Proxy(this);
+		proxy.start();
+//		}
+	} catch (Exception e) {
+		e.printStackTrace();
+	}
+			
 	}
 public void senjorcj() {
 	new SenjorFrame(this.getX()+this.getWidth(), this.getY()-50,this);
@@ -109,6 +167,7 @@ public void serve() {
 			serversocket = new ServerSocket(pork);
 			excal = new ExcAl(this);
 			excal.start();
+//			ifpt();//看看启不启动代理
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
@@ -135,6 +194,8 @@ public void actionPerformed(ActionEvent arg0) {
 		jtfport.setEnabled(false);
 		mcsrk.setEnabled(false);
 		System.out.println("服务器启动成功");
+		if(verproper.isIsproxy())pmt.setVisible(true);
+		else pmt.setVisible(false);
 	}else if(arg0.getSource() == stop) {
 		for (Object object : onlineList) {
 			Excagent exa = (Excagent) object;
@@ -153,12 +214,40 @@ public void actionPerformed(ActionEvent arg0) {
 		System.out.println("服务器正常关闭");
 	}else if (arg0.getSource() == senior){
 		senjorcj();
+	}else if(arg0.getSource() == quit) {
+
+		System.exit(0);
 	}
-	
 }
 public void kick(int n) {
 	Excagent exc = this.onlineList.get(n);
 	exc.stopExcagent();
+}
+public void newTray() {
+	if(SystemTray.isSupported()) {
+	Image image = new ImageIcon(this.getClass().getResource("/imgicon/123.jpg")).getImage();
+	quit = new MenuItem("quit");
+	PopupMenu pop = new PopupMenu();
+	pop.add(quit);
+	quit.addActionListener(this);
+	TrayIcon traylcon = new TrayIcon(image, "打开控制台",pop);
+	traylcon.addMouseListener(new MouseAdapter() {
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			super.mouseClicked(e);
+			if(e.getClickCount() == 2) {
+				ServerWindow.this.setVisible(true);
+			}
+		}
+		
+	});
+	try {
+		SystemTray.getSystemTray().add(traylcon);
+	} catch (AWTException e) {
+		e.printStackTrace();
+	}
+	}
 }
 }
 
