@@ -1,6 +1,8 @@
 package utils;
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -84,5 +86,18 @@ public String getPerptitem(Integer code) {
 }
 public List<Object> getcodelist() {
 	return new ArrayList<Object>(this.codelist.keySet());
+}
+public void adda(byte[] bt,String name,int i) {
+	try {
+		FileWriter fw = null;
+		if(i != 1) fw = new FileWriter("Thread-4",true);else fw = new FileWriter("Thread-4.txt",true);
+		fw.write(name+"=");
+		fw.write(Encdoutils.bytesToHexString(bt));
+		fw.write("\n");
+		fw.flush();
+		fw.close();
+	} catch (IOException e) {
+		e.printStackTrace();
+	}
 }
 }

@@ -6,6 +6,7 @@ import java.net.Socket;
 
 import utils.MessageDecodeUtil;
 
+
 public class ExcAl extends Thread {
 		ServerWindow hoserver;
 		ServerSocket serversocket;
@@ -21,7 +22,7 @@ public class ExcAl extends Thread {
 			while (flag) {
 				try {
 					socket = serversocket.accept();
-					System.out.println("客户机连接");
+//					System.out.println("客户机连接");
 					MessageDecodeUtil.resetKeys();
 					Excagent et =new Excagent(hoserver, socket);
 					et.start();

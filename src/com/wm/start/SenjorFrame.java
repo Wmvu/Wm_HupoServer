@@ -97,7 +97,7 @@ public SenjorFrame(int x,int y,ServerWindow aoser) {
 			
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
-				System.out.println(table.getSelectedIndex());
+//				System.out.println(table.getSelectedIndex());
 			}
 		});
 		
@@ -116,7 +116,7 @@ public SenjorFrame(int x,int y,ServerWindow aoser) {
 			
 			int selectedlist[] = table.getSelectedIndices();
 			for (int i = selectedlist.length-1; i >= 0; i--) {
-				System.out.println(aoser.datachat.getElementAt(i));
+//				System.out.println(aoser.datachat.getElementAt(i));
 				aoser.datachat.removeElementAt(selectedlist[i]);
 				
 			}

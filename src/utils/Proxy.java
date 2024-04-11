@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.Arrays;
 
 import com.wm.start.Excagent;
 import com.wm.start.ServerWindow;
@@ -37,10 +36,22 @@ public void run() {
 	try {
 		while (true) {
 			if(flag) {
-		byte[] msg = new byte[2048];
-		int n =sc.getInputStream().read(msg);
-		byte[] msgdata = Arrays.copyOf(msg, n);
-		byte[] cleardata = MessageDecodeUtil.decode(msgdata, MessageDecodeUtil.getDecodeKey());
+		byte[] msg = new byte[4];
+		int n = sc.getInputStream().read(msg);
+//		byte[] msgdata = Arrays.copyOf(msg, n);
+//		byte[] cleardata = MessageDecodeUtil.decode(msgdata, MessageDecodeUtil.getDecodeKey());
+		
+		int len = MessageDecode.doDecode(msg, MessageDecodeUtil.getDecodeKey());
+		if (n<6)continue;
+//		buf.get(msg);
+//		int len = MessageDecode.doDecode(msg, this.userkey);
+		byte[] lens = new byte[len-4];
+		byte[] cleardata = new byte[len];
+		sc.getInputStream().read(lens);
+		
+		System.arraycopy(msg, 0, cleardata, 0, 4);
+		System.arraycopy(lens, 0, cleardata, 4, len-4);
+//		System.out.println(Encdoutils.bytesToHexString(msgdata));
 		this.rend(cleardata);
 			}
 		}
@@ -66,7 +77,6 @@ public void run() {
 		if (flag) this.exc.sendMessageData(b);;
 	}
 	public void reset(Excagent exc) throws IOException {
-		System.out.println("0");
 		if(sc!=null) {
 			try {
 				sc.shutdownOutput();
