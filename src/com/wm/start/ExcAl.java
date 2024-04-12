@@ -1,21 +1,22 @@
 package com.wm.start;
 
 import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 
 import utils.MessageDecodeUtil;
 
 
 public class ExcAl extends Thread {
 		ServerWindow hoserver;
-		ServerSocket serversocket;
-		Socket socket;
+		ServerSocketChannel serversocket;
+		SocketChannel socket;
 		boolean flag = true;
 
 		public ExcAl(ServerWindow serverWindow){
 			this.hoserver = serverWindow;
 			this.serversocket = serverWindow.serversocket;
+			
 		
 		}
 		public void run () {
@@ -23,6 +24,7 @@ public class ExcAl extends Thread {
 				try {
 					socket = serversocket.accept();
 //					System.out.println("客户机连接");
+					socket.configureBlocking(false);
 					MessageDecodeUtil.resetKeys();
 					Excagent et =new Excagent(hoserver, socket);
 					et.start();

@@ -50,7 +50,7 @@ public class MessageDecode {
         if (connectiona < len) {
             return new SocketMessage();
         }
-        System.out.println(String.format("%02X",header));
+//        System.out.println(String.format("%02X",header));
         byte[] datas = new byte[len];
         datas = Arrays.copyOf(connection,len);
         return SocketMessage.obtain().parseData(MessageDecodeUtil.decode(datas, MessageDecodeUtil.getDecodeKey()));

@@ -3,6 +3,6 @@ package com.wm.start;
 public class HupoServerMain{
 	
 	public static void main(String[] args) {
-		new ServerWindow("HupoServer 	:1.0.4");
+		new ServerWindow("HupoServer 	:1.1.0");
 	}
 }

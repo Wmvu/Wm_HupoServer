@@ -15,8 +15,9 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
-import java.net.ServerSocket;
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.channels.ServerSocketChannel;
 import java.util.Vector;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -45,8 +46,9 @@ public class ServerWindow extends JFrame implements ActionListener{
 	JList<String> Useronlise;
 	Vector<Excagent> onlineList = new Vector<Excagent>();
 	JTextField jtfport,mcsrk;
-	ServerSocket serversocket ;
+	ServerSocketChannel serversocket ;
 	JLabel dkh,mc;
+	public final static boolean isdebug = false;
 	static ByteBuffer byterbuffer = ByteBuffer.allocate(1024);	
 	public DataChat datachat= new DataChat();
 	public VerProper verproper;
@@ -164,7 +166,8 @@ public void serve() {
 	 int pork =Integer.parseInt(jtfport.getText().trim());
 		try {
 			verproper.initilise();//让配置项加载器初始化
-			serversocket = new ServerSocket(pork);
+			serversocket = ServerSocketChannel.open();
+			serversocket.bind(new InetSocketAddress(pork));
 			excal = new ExcAl(this);
 			excal.start();
 //			ifpt();//看看启不启动代理
@@ -178,7 +181,7 @@ public void refreshlist() {
 	int size = this.onlineList.size();
 	for (int i = 0;i<size;i++) {
 		Excagent tempsat = this.onlineList.get(i);
-		String tems = tempsat.socket.getInetAddress().toString();
+		String tems = tempsat.socket.socket().getInetAddress().toString();
 		tems=tems + "|" + tempsat.getName();
 		v.add(tems);
 		
